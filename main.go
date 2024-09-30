@@ -4,7 +4,6 @@ import (
 	"container/heap"
 	"fmt"
 	"os"
-	"sort"
 )
 
 type Node struct {
@@ -38,7 +37,7 @@ type Pair struct {
 	Count int
 }
 
-func getSortedFrequency(s string) []Pair {
+func getFrequency(s string) []Pair {
 	frequencyMap := make(map[rune]int)
 	for _, char := range s {
 		frequencyMap[char]++
@@ -47,12 +46,7 @@ func getSortedFrequency(s string) []Pair {
 	for char, count := range frequencyMap {
 		pairs = append(pairs, Pair{Char: char, Count: count})
 	}
-	sort.Slice(pairs, func(i, j int) bool {
-		if pairs[i].Count == pairs[j].Count {
-			return pairs[i].Char < pairs[j].Char
-		}
-		return pairs[i].Count > pairs[j].Count
-	})
+
 	return pairs
 }
 
@@ -91,6 +85,30 @@ func generateHuffmanCodes(root *Node, prefix string, codes map[rune]string) {
 	generateHuffmanCodes(root.Right, prefix+"1", codes)
 }
 
+func decodeHelper(root *Node, encoded string, index int) (decodedChar string, newIndex int) {
+	if root.Char != 0 {
+		return string(root.Char), index
+	}
+
+	if encoded[index] == '0' {
+		return decodeHelper(root.Left, encoded, index+1)
+	} else {
+		return decodeHelper(root.Right, encoded, index+1)
+	}
+
+}
+
+func decodeHuffman(root *Node, encoded string, index int) string {
+	decodedData := ""
+	char := ""
+	for index < len(encoded) {
+		char, index = decodeHelper(root, encoded, index)
+		decodedData += char
+	}
+
+	return decodedData
+}
+
 func encodeString(s string, codes map[rune]string) string {
 	var encoded string
 	for _, char := range s {
@@ -115,13 +133,13 @@ func main() {
 	fmt.Println("Original content:")
 	fmt.Println(content)
 
-	sortedFreq := getSortedFrequency(content)
+	Freq := getFrequency(content)
 	fmt.Println("\nCharacter frequencies:")
-	for _, pair := range sortedFreq {
+	for _, pair := range Freq {
 		fmt.Printf("Character: '%c', Frequency: %d\n", pair.Char, pair.Count)
 	}
 
-	root := buildHuffmanTree(sortedFreq)
+	root := buildHuffmanTree(Freq)
 	codes := make(map[rune]string)
 	generateHuffmanCodes(root, "", codes)
 
@@ -131,11 +149,16 @@ func main() {
 	}
 
 	encoded := encodeString(content, codes)
+
 	fmt.Println("\nEncoded string:")
 	fmt.Println(encoded)
 
 	fmt.Printf("\nOriginal size: %d bits\n", len(content)*8)
 	fmt.Printf("Compressed size: %d bits\n", len(encoded))
 	compressionRatio := float64(len(encoded)) / float64(len(content)*8) * 100
-	fmt.Printf("Compression ratio: %.2f%%\n", compressionRatio)
+	fmt.Printf("Compression ratio: %.2f%%\n\n", compressionRatio)
+
+	decodedData := decodeHuffman(root, encoded, 0)
+	fmt.Printf("Decoded string: %s\n", decodedData)
+
 }
