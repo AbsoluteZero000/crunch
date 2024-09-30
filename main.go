@@ -35,8 +35,10 @@ func encode(root *Node, content string) string {
 
 	fmt.Printf("\nOriginal size: %d bits\n", len(content)*8)
 	fmt.Printf("Compressed size: %d bits\n", len(encoded))
+
 	compressionRatio := float64(len(encoded)) / float64(len(content)*8) * 100
 	fmt.Printf("Compression ratio: %.2f%%\n\n", compressionRatio)
+
 	return encoded
 
 }
@@ -48,11 +50,13 @@ func decode(root *Node, encodedData string) string {
 }
 
 func main() {
+
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: ", os.Args[0], "filename")
 		fmt.Println("No file specified")
 		os.Exit(1)
 	}
+
 	data, err := os.ReadFile(os.Args[1])
 	if err != nil {
 		fmt.Println(err)
