@@ -1,25 +1,26 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 )
 
 func makeTree(content string) *Node {
-	fmt.Println("Original content:")
-	fmt.Println(content)
+	//	fmt.Println("Original content:")
+	//	fmt.Println(content)
 
 	Freq := getFrequency(content)
-	fmt.Println("\nCharacter frequencies:")
-	for _, pair := range Freq {
-		fmt.Printf("Character: '%c', Frequency: %d\n", pair.Char, pair.Count)
-	}
+	// fmt.Println("\nCharacter frequencies:")
+	// for _, pair := range Freq {
+	// 	fmt.Printf("Character: '%c', Frequency: %d\n", pair.Char, pair.Count)
+	// }
 
 	return buildHuffmanTree(Freq)
 
 }
 
-func encode(root *Node, content string) string {
+func verbose_encode(root *Node, content string) string {
 	codes := make(map[rune]string)
 	generateHuffmanCodes(root, "", codes)
 
@@ -43,28 +44,57 @@ func encode(root *Node, content string) string {
 
 }
 
-func decode(root *Node, encodedData string) string {
+func verbose_decode(root *Node, encodedData string) string {
 	decodedData := decodeHuffman(root, encodedData, 0)
 	fmt.Printf("Decoded string: %s\n", decodedData)
 	return decodedData
 }
 
+func encode(root *Node, content string) string {
+
+	codes := make(map[rune]string)
+	generateHuffmanCodes(root, "", codes)
+
+	encoded := encodeString(content, codes)
+	return encoded
+}
+
+func decode(root *Node, encodedData string) string {
+	decodedData := decodeHuffman(root, encodedData, 0)
+	return decodedData
+}
+
 func main() {
+	inputFile := flag.String("i", "", "Input file name")
+	outputFile := flag.String("o", "", "Output file name")
+	verbose := flag.Bool("v", false, "Enable verbose mode")
 
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: ", os.Args[0], "filename")
-		fmt.Println("No file specified")
-		os.Exit(1)
-	}
+	flag.Parse()
 
-	data, err := os.ReadFile(os.Args[1])
+	data, err := os.ReadFile(*inputFile)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
+	var encodedData string
 	HuffmanTreeRoot := makeTree(string(data))
-	encodedData := encode(HuffmanTreeRoot, string(data))
-	_ = decode(HuffmanTreeRoot, encodedData)
+
+	if *verbose {
+		encodedData = verbose_encode(HuffmanTreeRoot, string(data))
+		_ = verbose_decode(HuffmanTreeRoot, encodedData)
+	} else {
+		encodedData = encode(HuffmanTreeRoot, string(data))
+		_ = decode(HuffmanTreeRoot, encodedData)
+	}
+
+	if *outputFile != "" {
+		err = os.WriteFile(*outputFile, []byte(encodedData), 0644)
+		if err != nil {
+			fmt.Println("Couldn't write to file.")
+			fmt.Println(err)
+		}
+	}
+
+	os.Exit(0)
 
 }
