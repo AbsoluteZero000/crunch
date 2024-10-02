@@ -17,19 +17,19 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to read file %s: %v", *inputFile, err)
 	}
-	var encodedData string
+	var encodedData []byte
+	var bitLength int
 	HuffmanTreeRoot := makeTree(string(data))
 
 	if *verbose {
-		encodedData = verbose_encode(HuffmanTreeRoot, string(data))
-		_ = verbose_decode(HuffmanTreeRoot, encodedData)
+		encodedData, bitLength = verbose_encode(HuffmanTreeRoot, string(data))
+		_ = verbose_decode(HuffmanTreeRoot, encodedData, bitLength)
 	} else {
-		encodedData = encode(HuffmanTreeRoot, string(data))
+		encodedData, _ = encode(HuffmanTreeRoot, string(data))
 	}
 
 	if *outputFile != "" {
-		outputData := seralizeTreeAndEncodedData(HuffmanTreeRoot, encodedData)
-		if err := os.WriteFile(*outputFile, []byte(outputData), 0600); err != nil {
+		if err := os.WriteFile(*outputFile, encodedData, 0600); err != nil {
 			log.Printf("Error writing to output file %s: %v", *outputFile, err)
 		}
 	}
