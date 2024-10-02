@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"container/heap"
+	"encoding/binary"
+	"fmt"
 )
 
 type Node struct {
@@ -113,4 +116,156 @@ func encodeString(s string, codes map[rune]string) string {
 		encoded += codes[char]
 	}
 	return encoded
+}
+
+func makeTree(content string) *Node {
+	Freq := getFrequency(content)
+	return buildHuffmanTree(Freq)
+}
+
+func verbose_encode(root *Node, content string) string {
+	fmt.Println("Original content:")
+	fmt.Println(content)
+
+	codes := make(map[rune]string)
+	generateHuffmanCodes(root, "", codes)
+
+	fmt.Println("\nHuffman Codes:")
+	for char, code := range codes {
+		fmt.Printf("Character: '%c', Code: %s\n", char, code)
+	}
+
+	encoded := encodeString(content, codes)
+
+	fmt.Println("\nEncoded string:")
+	fmt.Println(encoded)
+
+	fmt.Printf("\nOriginal size: %d bits\n", len(content)*8)
+	fmt.Printf("Compressed size: %d bits\n", len(encoded))
+
+	compressionRatio := float64(len(encoded)) / float64(len(content)*8) * 100
+	fmt.Printf("Compression ratio: %.2f%%\n\n", compressionRatio)
+
+	return encoded
+
+}
+
+func verbose_decode(root *Node, encodedData string) string {
+	decodedData := decodeHuffman(root, encodedData, 0)
+	fmt.Printf("Decoded string: %s\n", decodedData)
+	return decodedData
+}
+
+func encode(root *Node, content string) string {
+
+	codes := make(map[rune]string)
+	generateHuffmanCodes(root, "", codes)
+
+	encoded := encodeString(content, codes)
+	return encoded
+}
+
+func decode(root *Node, encodedData string) string {
+	decodedData := decodeHuffman(root, encodedData, 0)
+	return decodedData
+}
+
+func seralizeTreeAndEncodedData(root *Node, encodedData string) []byte {
+	// seralizedTree, err := SerializeTree(root)
+	// fmt.Printf("Seralized tree: %s\n", seralizedTree)
+	// if err != nil {
+	// 	log.Fatalf("Failed to serialize tree: %v", err)
+	// }
+	// TODO: fix this and make it return the seralized tree and data
+	return []byte(encodedData)
+
+}
+
+func SerializeTree(root *Node) ([]byte, error) {
+	var buf bytes.Buffer
+	err := serializeNode(&buf, root)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func serializeNode(buf *bytes.Buffer, node *Node) error {
+	if node == nil {
+		return nil
+	}
+
+	if node.Left == nil && node.Right == nil {
+		err := buf.WriteByte(1)
+		if err != nil {
+			return err
+		}
+
+		err = binary.Write(buf, binary.LittleEndian, node.Char)
+		if err != nil {
+			return err
+		}
+
+		err = binary.Write(buf, binary.LittleEndian, int32(node.Freq))
+		if err != nil {
+			return err
+		}
+	} else {
+		err := buf.WriteByte(0)
+		if err != nil {
+			return err
+		}
+
+		err = serializeNode(buf, node.Left)
+		if err != nil {
+			return err
+		}
+
+		err = serializeNode(buf, node.Right)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func DeserializeTree(data []byte) (*Node, error) {
+	buf := bytes.NewReader(data)
+	return deserializeNode(buf)
+}
+
+func deserializeNode(buf *bytes.Reader) (*Node, error) {
+	nodeType, err := buf.ReadByte()
+	if err != nil {
+		return nil, err
+	}
+
+	if nodeType == 1 {
+		var char rune
+		err = binary.Read(buf, binary.LittleEndian, &char)
+		if err != nil {
+			return nil, err
+		}
+
+		var freq int32
+		err = binary.Read(buf, binary.LittleEndian, &freq)
+		if err != nil {
+			return nil, err
+		}
+
+		return &Node{Char: char, Freq: int(freq)}, nil
+	}
+
+	left, err := deserializeNode(buf)
+	if err != nil {
+		return nil, err
+	}
+
+	right, err := deserializeNode(buf)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Node{Left: left, Right: right}, nil
 }
