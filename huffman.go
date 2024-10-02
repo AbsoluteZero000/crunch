@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"container/heap"
 	"fmt"
-	"math"
 )
 
 type Node struct {
@@ -122,37 +120,6 @@ func makeTree(content string) *Node {
 	Freq := getFrequency(content)
 	return buildHuffmanTree(Freq)
 }
-func bitStringToBytes(s string) []byte {
-	numBytes := int(math.Ceil(float64(len(s)) / 8.0))
-	result := make([]byte, numBytes)
-
-	for i := 0; i < len(s); i++ {
-		if s[i] == '1' {
-			byteIndex := i / 8
-			bitIndex := 7 - (i % 8)
-			result[byteIndex] |= 1 << bitIndex
-		}
-	}
-
-	return result
-}
-
-func bytesToBitString(data []byte, bitLength int) string {
-	var result bytes.Buffer
-
-	for i := 0; i < bitLength; i++ {
-		byteIndex := i / 8
-		bitIndex := 7 - (i % 8)
-
-		if data[byteIndex]&(1<<bitIndex) != 0 {
-			result.WriteByte('1')
-		} else {
-			result.WriteByte('0')
-		}
-	}
-
-	return result.String()
-}
 
 func encode(root *Node, content string) (data []byte, bitlength int) {
 	codes := make(map[rune]string)
@@ -204,6 +171,7 @@ func verbose_decode(root *Node, encodedData []byte, bitLength int) string {
 
 	fmt.Println("Recovered bit string:")
 	fmt.Println(bitString)
+	fmt.Println()
 
 	decodedData := decodeHuffman(root, bitString, 0)
 	fmt.Printf("Decoded string: %s\n", decodedData)
