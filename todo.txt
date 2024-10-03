@@ -1,0 +1,4 @@
+- add lipgloss to make it look better
+- add a serialization function for the table and the encoded data 
+- use charmbracelet/vhs to make a cool README file 
+
