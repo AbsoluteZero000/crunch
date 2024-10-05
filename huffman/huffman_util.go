@@ -3,6 +3,8 @@ package huffman
 import (
 	"bytes"
 	"container/heap"
+	"fmt"
+	"github.com/charmbracelet/lipgloss"
 	"math"
 )
 
@@ -147,4 +149,107 @@ func bytesToBitString(data []byte, bitLength int) string {
 	}
 
 	return result.String()
+}
+
+func printCompressionStats(content string, codes map[rune]string, bitString string, compressionRatio float64) {
+	colors := struct {
+		primary   string
+		secondary string
+		accent    string
+		text      string
+		border    string
+	}{
+		primary:   "#7D56F4",
+		secondary: "#2D3748",
+		accent:    "#48BB78",
+		text:      "#FAFAFA",
+		border:    "#4A5568",
+	}
+
+	maxWidth := 100
+
+	baseStyle := lipgloss.NewStyle().
+		PaddingLeft(1).
+		PaddingRight(1).
+		BorderStyle(lipgloss.RoundedBorder())
+
+	headerStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color(colors.text)).
+		Background(lipgloss.Color(colors.primary)).
+		PaddingLeft(2).
+		PaddingRight(2).
+		MarginBottom(1)
+
+	contentBoxStyle := baseStyle.
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color(colors.border)).
+		Padding(1).
+		Width(maxWidth)
+
+	codeRowStyle := lipgloss.NewStyle().
+		PaddingLeft(1).
+		PaddingRight(1).
+		MarginBottom(1).
+		Width(maxWidth - 4)
+
+	statStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color(colors.accent))
+
+	fmt.Println(headerStyle.Render("Original Content"))
+	contentChunks := splitLongString(content, maxWidth-6)
+	formattedContent := lipgloss.JoinVertical(lipgloss.Left, contentChunks...)
+	fmt.Println(contentBoxStyle.Render(formattedContent))
+	fmt.Println()
+
+	fmt.Println(headerStyle.Render("Huffman Codes"))
+	codeBox := ""
+	for char, code := range codes {
+		var row string
+		if char == '\n' {
+			row = fmt.Sprintf("Character: '\\n' │ Code: %-20s", code)
+		} else {
+			row = fmt.Sprintf("Character: '%c'  │ Code: %-20s", char, code)
+		}
+		codeBox += codeRowStyle.Render(row) + "\n"
+	}
+	fmt.Println(contentBoxStyle.Render(codeBox))
+	fmt.Println()
+
+	fmt.Println(headerStyle.Render("Bit String"))
+	bitStringChunks := splitLongString(bitString, maxWidth-6)
+	formattedBitString := lipgloss.JoinVertical(lipgloss.Left, bitStringChunks...)
+	fmt.Println(contentBoxStyle.Render(formattedBitString))
+	fmt.Println()
+
+	statsStyle := contentBoxStyle.
+		Width(50).
+		Align(lipgloss.Center)
+
+	stats := fmt.Sprintf(
+		"%s: %d bits\n%s: %d bits\n%s: %.2f%%",
+		statStyle.Render("Original size"),
+		len(content)*8,
+		statStyle.Render("Compressed size"),
+		len(bitString),
+		statStyle.Render("Compression ratio"),
+		compressionRatio,
+	)
+	fmt.Println(headerStyle.Render("Compression Statistics"))
+	fmt.Println(statsStyle.Render(stats))
+}
+
+func splitLongString(s string, chunkSize int) []string {
+	var chunks []string
+	runes := []rune(s)
+
+	for i := 0; i < len(runes); i += chunkSize {
+		end := i + chunkSize
+		if end > len(runes) {
+			end = len(runes)
+		}
+		chunks = append(chunks, string(runes[i:end]))
+	}
+	return chunks
 }

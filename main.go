@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/absolutezero000/encoding/huffman"
 	"log"
 	"os"
@@ -19,12 +18,8 @@ func main() {
 		log.Fatalf("Failed to read file %s: %v", *inputFile, err)
 	}
 
-	var encodedData []byte
-	var bitLength int
 	HuffmanTreeRoot := huffman.MakeTree(string(data))
-
-	encodedData, bitLength = huffman.Encode(HuffmanTreeRoot, string(data), *verbose)
-	_ = huffman.Decode(HuffmanTreeRoot, encodedData, bitLength, *verbose)
+	encodedData, _ := huffman.Encode(HuffmanTreeRoot, string(data), *verbose)
 
 	if *outputFile != "" {
 		if err := os.WriteFile(*outputFile, encodedData, 0600); err != nil {
@@ -32,10 +27,10 @@ func main() {
 		}
 	}
 
-	treeData, _ := huffman.SerializeTree(HuffmanTreeRoot)
-
-	fmt.Println(treeData)
-
-	treeRoot, _ := huffman.DeserializeTree(treeData)
-	_ = huffman.Decode(treeRoot, encodedData, bitLength, *verbose)
+	// treeData, _ := huffman.SerializeTree(HuffmanTreeRoot)
+	//
+	// fmt.Println(treeData)
+	//
+	// treeRoot, _ := huffman.DeserializeTree(treeData)
+	// _ = huffman.Decode(treeRoot, encodedData, bitLength, *verbose)
 }
