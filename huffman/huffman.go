@@ -1,4 +1,4 @@
-package main
+package huffman
 
 import (
 	"container/heap"
@@ -116,12 +116,12 @@ func encodeString(s string, codes map[rune]string) string {
 	return encoded
 }
 
-func makeTree(content string) *Node {
+func MakeTree(content string) *Node {
 	Freq := getFrequency(content)
 	return buildHuffmanTree(Freq)
 }
 
-func encode(root *Node, content string) (data []byte, bitlength int) {
+func Encode(root *Node, content string) (data []byte, bitlength int) {
 	codes := make(map[rune]string)
 	generateHuffmanCodes(root, "", codes)
 
@@ -133,13 +133,13 @@ func encode(root *Node, content string) (data []byte, bitlength int) {
 	return bitStringToBytes(bitString), len(bitString)
 }
 
-func decode(root *Node, encodedData []byte, bitLength int) string {
+func Decode(root *Node, encodedData []byte, bitLength int) string {
 	bitString := bytesToBitString(encodedData, bitLength)
 
 	return decodeHuffman(root, bitString, 0)
 }
 
-func verbose_encode(root *Node, content string) (data []byte, bitLength int) {
+func VerboseEncode(root *Node, content string) (data []byte, bitLength int) {
 	fmt.Println("Original content:")
 	fmt.Println(content)
 
@@ -166,7 +166,7 @@ func verbose_encode(root *Node, content string) (data []byte, bitLength int) {
 	return encoded, len(bitString)
 }
 
-func verbose_decode(root *Node, encodedData []byte, bitLength int) string {
+func VerboseDecode(root *Node, encodedData []byte, bitLength int) string {
 	bitString := bytesToBitString(encodedData, bitLength)
 
 	fmt.Println("Recovered bit string:")

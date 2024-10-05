@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/absolutezero000/encoding/huffman"
 	"log"
 	"os"
 )
@@ -19,13 +20,13 @@ func main() {
 	}
 	var encodedData []byte
 	var bitLength int
-	HuffmanTreeRoot := makeTree(string(data))
+	HuffmanTreeRoot := huffman.MakeTree(string(data))
 
 	if *verbose {
-		encodedData, bitLength = verbose_encode(HuffmanTreeRoot, string(data))
-		_ = verbose_decode(HuffmanTreeRoot, encodedData, bitLength)
+		encodedData, bitLength = huffman.VerboseEncode(HuffmanTreeRoot, string(data))
+		_ = huffman.VerboseDecode(HuffmanTreeRoot, encodedData, bitLength)
 	} else {
-		encodedData, _ = encode(HuffmanTreeRoot, string(data))
+		encodedData, _ = huffman.Encode(HuffmanTreeRoot, string(data))
 	}
 
 	if *outputFile != "" {
