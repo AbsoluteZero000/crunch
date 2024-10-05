@@ -1,6 +1,8 @@
 package huffman
 
 import (
+	"bytes"
+	"encoding/gob"
 	"fmt"
 )
 
@@ -49,4 +51,37 @@ func Decode(root *Node, encodedData []byte, bitLength int, verbose bool) string 
 		fmt.Printf("Decoded string: %s\n", decodedData)
 	}
 	return decodedData
+}
+
+func SerializeTree(root *Node) ([]byte, error) {
+	if root == nil {
+		return nil, nil
+	}
+
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+
+	err := enc.Encode(root)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+func DeserializeTree(data []byte) (*Node, error) {
+	if data == nil {
+		return nil, nil
+	}
+
+	buf := bytes.NewBuffer(data)
+	dec := gob.NewDecoder(buf)
+
+	var root Node
+	err := dec.Decode(&root)
+	if err != nil {
+		return nil, err
+	}
+
+	return &root, nil
 }
