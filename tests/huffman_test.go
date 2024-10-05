@@ -1,6 +1,7 @@
 package huffman
 
 import (
+	"github.com/absolutezero000/encoding/huffman"
 	"testing"
 )
 
@@ -25,11 +26,11 @@ func TestHuffmanEncodingDecoding(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			root := makeTree(tc.input)
+			root := huffman.MakeTree(tc.input)
 
-			encoded, bitLength := encode(root, tc.input)
+			encoded, bitLength := huffman.Encode(root, tc.input)
 
-			decoded := decode(root, encoded, bitLength)
+			decoded := huffman.Decode(root, encoded, bitLength)
 
 			if decoded != tc.input {
 				t.Errorf("Encoding/decoding mismatch. Original: %s, Got: %s", tc.input, decoded)
