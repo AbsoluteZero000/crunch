@@ -28,9 +28,9 @@ func TestHuffmanEncodingDecoding(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			root := huffman.MakeTree(tc.input)
 
-			encoded, bitLength := huffman.Encode(root, tc.input)
+			encoded, bitLength := huffman.Encode(root, tc.input, false)
 
-			decoded := huffman.Decode(root, encoded, bitLength)
+			decoded := huffman.Decode(root, encoded, bitLength, false)
 
 			if decoded != tc.input {
 				t.Errorf("Encoding/decoding mismatch. Original: %s, Got: %s", tc.input, decoded)

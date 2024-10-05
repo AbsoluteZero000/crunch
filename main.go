@@ -22,12 +22,8 @@ func main() {
 	var bitLength int
 	HuffmanTreeRoot := huffman.MakeTree(string(data))
 
-	if *verbose {
-		encodedData, bitLength = huffman.VerboseEncode(HuffmanTreeRoot, string(data))
-		_ = huffman.VerboseDecode(HuffmanTreeRoot, encodedData, bitLength)
-	} else {
-		encodedData, _ = huffman.Encode(HuffmanTreeRoot, string(data))
-	}
+	encodedData, bitLength = huffman.Encode(HuffmanTreeRoot, string(data), *verbose)
+	_ = huffman.Decode(HuffmanTreeRoot, encodedData, bitLength, *verbose)
 
 	if *outputFile != "" {
 		if err := os.WriteFile(*outputFile, encodedData, 0600); err != nil {
