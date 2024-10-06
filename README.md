@@ -10,7 +10,7 @@ Crunch is a robust command-line tool written in Go that empowers you to achieve 
 - **Customizable Verbosity:** Control the level of detail displayed during compression with the `-v` flag, allowing you to tailor the output to your preferences.
 - **Streamlined File Handling:** Crunch seamlessly handles both input and output files, making compression workflows effortless.
 
-** Usage **
+**Usage**
 
 1. **Basic Usage:**
    ```bash
