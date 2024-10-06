@@ -111,14 +111,14 @@ func TestSeralization(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			serialized, err := huffman.SerializeTree(tc.root)
 			if err != nil {
-				t.Errorf("Deserialization failed")
+				t.Errorf("Serialization failed")
 			}
 			root, err := huffman.DeserializeTree(serialized)
 			if err != nil {
 				t.Errorf("Deserialization failed")
 			}
 			if !checkIfEqual(tc.root, root) {
-				t.Errorf("Deserialization failed")
+				t.Errorf("The tree generated from the deserialization is not equal to the original tree")
 			}
 		})
 	}
