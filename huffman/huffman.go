@@ -2,7 +2,9 @@ package huffman
 
 import (
 	"bytes"
+	"encoding/binary"
 	"encoding/gob"
+	"errors"
 	"fmt"
 )
 
@@ -71,4 +73,83 @@ func DeserializeTree(data []byte) (*Node, error) {
 	}
 
 	return &root, nil
+}
+
+func SerializeData(content string) ([]byte, error) {
+	if len(content) == 0 {
+		return nil, errors.New("empty content")
+	}
+
+	root := MakeTree(content)
+	if root == nil {
+		return nil, errors.New("failed to create tree")
+	}
+
+	serializedRoot, err := SerializeTree(root)
+	if err != nil {
+		return nil, err
+	}
+
+	serializedData, bitLength := Encode(root, content, false)
+
+	buf := new(bytes.Buffer)
+
+	if err := binary.Write(buf, binary.LittleEndian, uint32(len(serializedRoot))); err != nil {
+		return nil, err
+	}
+
+	if _, err := buf.Write(serializedRoot); err != nil {
+		return nil, err
+	}
+
+	if err := binary.Write(buf, binary.LittleEndian, uint32(bitLength)); err != nil {
+		return nil, err
+	}
+
+	if _, err := buf.Write(serializedData); err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+func DeserializeData(data []byte) (*Node, string, error) {
+	if len(data) < 8 {
+		return nil, "", errors.New("invalid data length")
+	}
+
+	buf := bytes.NewReader(data)
+
+	var rootLength uint32
+	if err := binary.Read(buf, binary.LittleEndian, &rootLength); err != nil {
+		return nil, "", err
+	}
+
+	if uint32(len(data)) < 8+rootLength {
+		return nil, "", errors.New("insufficient data")
+	}
+
+	serializedRoot := make([]byte, rootLength)
+	if _, err := buf.Read(serializedRoot); err != nil {
+		return nil, "", err
+	}
+
+	root, err := DeserializeTree(serializedRoot)
+	if err != nil {
+		return nil, "", err
+	}
+
+	var bitLength uint32
+	if err := binary.Read(buf, binary.LittleEndian, &bitLength); err != nil {
+		return nil, "", err
+	}
+
+	serializedData := make([]byte, buf.Len())
+	if _, err := buf.Read(serializedData); err != nil {
+		return nil, "", err
+	}
+
+	content := Decode(root, serializedData, int(bitLength), false)
+
+	return root, content, nil
 }

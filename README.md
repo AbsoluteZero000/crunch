@@ -20,11 +20,10 @@ Crunch is a robust command-line tool written in Go that empowers you to achieve 
 
 2. **Example with Verbose Mode**
 
-```bash
-crunch -i sample_data.txt -o encoded.dat -v
-```
-
-This example compresses `sample_data.txt` while providing informative progress messages about the compression process.
+   ```bash
+   crunch -i sample_data.txt -o encoded.dat -v
+   ```
+   This example compresses `sample_data.txt` while providing informative progress messages about the compression process.
 
 **Contributing**
 
