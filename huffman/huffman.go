@@ -75,7 +75,7 @@ func DeserializeTree(data []byte) (*Node, error) {
 	return &root, nil
 }
 
-func SerializeData(content string) ([]byte, error) {
+func SerializeData(content string, verbose bool) ([]byte, error) {
 	if len(content) == 0 {
 		return nil, errors.New("empty content")
 	}
@@ -90,7 +90,7 @@ func SerializeData(content string) ([]byte, error) {
 		return nil, err
 	}
 
-	serializedData, bitLength := Encode(root, content, false)
+	serializedData, bitLength := Encode(root, content, verbose)
 
 	buf := new(bytes.Buffer)
 
@@ -113,43 +113,43 @@ func SerializeData(content string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func DeserializeData(data []byte) (*Node, string, error) {
+func DeserializeData(data []byte, verbose bool) (string, error) {
 	if len(data) < 8 {
-		return nil, "", errors.New("invalid data length")
+		return "", errors.New("invalid data length")
 	}
 
 	buf := bytes.NewReader(data)
 
 	var rootLength uint32
 	if err := binary.Read(buf, binary.LittleEndian, &rootLength); err != nil {
-		return nil, "", err
+		return "", err
 	}
 
 	if uint32(len(data)) < 8+rootLength {
-		return nil, "", errors.New("insufficient data")
+		return "", errors.New("insufficient data")
 	}
 
 	serializedRoot := make([]byte, rootLength)
 	if _, err := buf.Read(serializedRoot); err != nil {
-		return nil, "", err
+		return "", err
 	}
 
 	root, err := DeserializeTree(serializedRoot)
 	if err != nil {
-		return nil, "", err
+		return "", err
 	}
 
 	var bitLength uint32
 	if err := binary.Read(buf, binary.LittleEndian, &bitLength); err != nil {
-		return nil, "", err
+		return "", err
 	}
 
 	serializedData := make([]byte, buf.Len())
 	if _, err := buf.Read(serializedData); err != nil {
-		return nil, "", err
+		return "", err
 	}
 
-	content := Decode(root, serializedData, int(bitLength), false)
+	content := Decode(root, serializedData, int(bitLength), verbose)
 
-	return root, content, nil
+	return content, nil
 }
