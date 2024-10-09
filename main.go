@@ -15,9 +15,11 @@ func main() {
 	flag.Parse()
 
 	data, err := os.ReadFile(*inputFile)
+
 	if err != nil {
 		log.Fatalf("Failed to read file %s: %v", *inputFile, err)
 	}
+
 	var outputData []byte
 
 	if *decode {

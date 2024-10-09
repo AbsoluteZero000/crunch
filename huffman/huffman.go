@@ -151,5 +151,9 @@ func DeserializeData(data []byte, verbose bool) (string, error) {
 
 	content := Decode(root, serializedData, int(bitLength), verbose)
 
+	if content == "" {
+		return "", errors.New("failed to decode data")
+	}
+
 	return content, nil
 }

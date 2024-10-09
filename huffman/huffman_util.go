@@ -130,7 +130,6 @@ func bitStringToBytes(s string) []byte {
 			result[byteIndex] |= 1 << bitIndex
 		}
 	}
-
 	return result
 }
 
