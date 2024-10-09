@@ -16,6 +16,10 @@ Crunch is a robust command-line tool written in Go that empowers you to achieve 
    ```bash
    go build -o crunch .
    ```
+   OR 
+   ```bash
+   ./build.sh
+   ```
 
 ## **Usage**
 
