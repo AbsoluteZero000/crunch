@@ -17,7 +17,12 @@ func main() {
 	data, err := os.ReadFile(*inputFile)
 
 	if err != nil {
-		log.Fatalf("Failed to read file %s: %v", *inputFile, err)
+		if *inputFile == "" {
+			log.Println("No input file specified.\n Please run command as follows:\n./crunch -i <input file> [-o <output file>] [-d] [-v]")
+		} else {
+			log.Printf("Error reading input file %s: %v", *inputFile, err)
+			os.Exit(1)
+		}
 	}
 
 	var outputData []byte

@@ -21,12 +21,12 @@ func (pq PriorityQueue) Len() int           { return len(pq) }
 func (pq PriorityQueue) Less(i, j int) bool { return pq[i].Freq < pq[j].Freq }
 func (pq PriorityQueue) Swap(i, j int)      { pq[i], pq[j] = pq[j], pq[i] }
 
-func (pq *PriorityQueue) Push(x interface{}) {
+func (pq *PriorityQueue) Push(x any) {
 	item := x.(*Node)
 	*pq = append(*pq, item)
 }
 
-func (pq *PriorityQueue) Pop() interface{} {
+func (pq *PriorityQueue) Pop() any {
 	old := *pq
 	n := len(old)
 	item := old[n-1]
@@ -136,7 +136,7 @@ func bitStringToBytes(s string) []byte {
 func bytesToBitString(data []byte, bitLength int) string {
 	var result bytes.Buffer
 
-	for i := 0; i < bitLength; i++ {
+	for i := range bitLength {
 		byteIndex := i / 8
 		bitIndex := 7 - (i % 8)
 
@@ -245,9 +245,7 @@ func splitLongString(s string, chunkSize int) []string {
 
 	for i := 0; i < len(runes); i += chunkSize {
 		end := i + chunkSize
-		if end > len(runes) {
-			end = len(runes)
-		}
+		end = min(end, len(runes))
 		chunks = append(chunks, string(runes[i:end]))
 	}
 	return chunks
